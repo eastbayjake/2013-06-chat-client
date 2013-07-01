@@ -29,18 +29,19 @@ function fetch () {
   $.ajax({
     type: "GET",
     url: "https://api.parse.com/1/classes/messages",
-    data: {"order":"createdAt"},
+    data: {"order":"-createdAt"},
     success: function(server) {
       $('ul').empty();
       for (i=0; i<=10; i++) {
-        display(server.results[i].username + ": " + server.results[i].text);
+        $('ul').append("<li>"+server.results[i].username + ": " + server.results[i].text + "</li>");
+        console.log(server.results[i].createdAt);
       }
     },
     dataType: "json"
   });
 }
 
-function send (message) {
+function send (username, message) {
   var sendMessage = {
     'username': username,
     'text': message
@@ -55,27 +56,39 @@ function send (message) {
     // dataType: "json", // What we're expecting
     contentType: "application/json", // What we're sending
     success: function(data, textStatus, jqXHR) {
-      console.log('Got data of type %s:', typeof data, data);
+      // console.log('Got data of type %s:', typeof data, data);
     }
   });
 }
 
-
-
+function spamfelix(){
+  var dumbtweets = ["GO HARVARD!", "I love Harvard football!", "New Haven sucks", "I want to live in Stiles!", "Toads is no fun...", "wats a computer 4 anywayzzz????? :/ :/", "I'm a poopy head"];
+  var dumbhashtags = ["#StilesLyfe", "#GoCantabs", "#PoopGoesPlop", "#loveBARTstrike", "#PoopTaco", "#HatersGonHate", "#yolo"];
+  send('TheRealFelix', dumbtweets[Math.floor(Math.random()*dumbtweets.length)]+" "+dumbhashtags[Math.floor(Math.random()*dumbhashtags.length)]);
+}
 
 fetch();
 
 $(document).ready(function(){
-  setInterval(function() {fetch();}, 3000);
-});
-
-$(document).ready(function(){
   $('#send').click(function(){
     var draftMessage = document.getElementById('message').value;
-    // var formattedMessage = username + ": " + draftMessage;
     send(draftMessage);
     $('#message').val("");
   });
+
+  $('#send').keypress(function(e){
+    if (e.keyCode == $.ui.keyCode.ENTER){
+      var draftMessage = document.getElementById('message').value;
+      send(draftMessage);
+      $('#message').val("");
+    }
+  });
+
+  setInterval(function(){
+    fetch();
+  }, 3000);
+
+  setInterval(function(){ spamfelix(); }, 1000);
 });
 
    // ajax request parameters.

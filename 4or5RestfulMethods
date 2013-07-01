@@ -1,0 +1,5 @@
+GET - Reads
+POST - Create
+PUT - Update
+PATCH - Partial update (not supported everywhere)
+DELETE - Removes
