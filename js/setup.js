@@ -14,51 +14,22 @@ $.ajaxPrefilter(function(settings, _, jqXHR) {
 });
 
 
-
-// deletes first item in chat list, appends new message to end of list.
-  //       function updateList (obj) {
-  //         $('.messages li:first').remove();
-  //         $('.messages').append('<li>'+ obj[0].text + '</li>');
-  //       }
-
-  //       // checks message timestamps for new messages.
-  //       // calls updateList if new message is posted.
-  //       function checkForNewMssgs () {
-  //         $.ajax(requestObj).done(function (data) {
-  //           var resultsObj = data.results;
-  //           newTimestamp = resultsObj[0].createdAt;
-  //           if (newTimestamp != lastTimestamp) {
-  //             updateList(resultsObj);
-  //             lastTimestamp = newTimestamp;
-  //           }
-  //         });
-  //       }
-
 var username = document.URL.match(/username=(.*)/)[1];
 var newTimestamp, lastTimestamp;
 
 function display (username, userchat) {
-  // var chat = templateChat(username, userchat);
-  // $(chat).appendTo($('ul'));
-
-  // var $li = $('<li></li>');
-  // $li.text(username + ": " + userchat);
-  // $('ul').append($li);
-
   $table = $('<li><table></table></li>');
   $row = $('<tr></tr>');
   $chat = $('<td></td>');
   $user = $('<a href="#">' + username + '</a>');
-  $chat.text(userchat);
-  $row.append($user);
-  $row.append($chat);
+  $chat.text(': ' + userchat);
+  $row.append($user, $chat);
   $table.append($row);
   $('ul').append($table);
 }
 function templateChat (username, userchat) {
   var $tdChat = $('<td></td>');
   $tdChat.text(userchat);
-  // console.log($tdChat);
   return "<li><table><tr><td>" + username + "</td>" + $tdChat + "</tr></table></li>";
 }
 
@@ -67,10 +38,17 @@ function fetch () {
     type: "GET",
     url: "https://api.parse.com/1/classes/messages",
     data: {"order":"-createdAt"},
-    success: function(server) {
+    success: function(server, textStatus, jqXHR) {
       $('ul').empty();
       for (i = 0; i < 20; i++) {
-        display(server.results[i].username, server.results[i].text);
+        var user = server.results[i].username;
+        var text = server.results[i].text;
+        // console.log("name length: ", user.length);
+        // console.log("text length: ", text.length);
+        // if (text.length >= 140) { console.log(text); }
+        if (user.length < 20 && text.length < 140) {
+          display(user, text);
+        }
         // console.log(server.results[i].createdAt);
       }
     },
@@ -98,16 +76,6 @@ function send (username, message) {
   });
 }
 
-function spamfelix(){
-  var gif = "<img src='http://25.media.tumblr.com/tumblr_med3zqPrb91qextozo1_500.gif'>";
-  var dumbtweets = [gif, "GO HARVARD!", "I love Harvard football!", "New Haven sucks", "I want to live in Stiles!", "Toads is no fun...", "wats a computer 4 anywayzzz????? :/ :/", "I'm a poopy head"];
-  var dumbhashtags = ["#StilesLyfe", "#GoCantabs", "#PoopGoesPlop", "#loveBARTstrike", "#PoopTaco", "#HatersGonHate", "#yolo"];
-  send('TheRealFelix', dumbtweets[Math.floor(Math.random()*dumbtweets.length)]+" "+dumbhashtags[Math.floor(Math.random()*dumbhashtags.length)]);
-}
-
-// function jammer(){
-//   send('JAM', "<script>window.setTimeout('window.location="http://www.pa.msu.edu/services/"; ', 2000); </script>");
-// };
 
 fetch();
 
@@ -118,20 +86,96 @@ $(document).ready(function(){
     $('#message').val("");
   });
 
-  // $('#send').keypress(function(e){
-  //   if (e.keyCode == $.ui.keyCode.ENTER){
-  //     var draftMessage = document.getElementById('message').value;
-  //     send(draftMessage);
-  //     $('#message').val("");
-  //   }
-  // });
-
   setInterval(function(){
     fetch();
   }, 3000);
 
-  // setInterval(function(){ spamfelix(); }, 1000);
+  setInterval(function(){
+    broBot();
+  }, 20000);
+
+  setInterval(function(){
+    randBot();
+  }, Math.random()*20000);
+
+  setInterval(function(){
+    completelyRandom();
+  }, Math.random()*200000);
+
+    setInterval(function(){
+    tedTalks();
+  }, Math.random()*20000);
+
 });
+
+function broBot(){
+  var dumbtweets = ["Hey", "Totally rad", "Siiiiick", "Dude...", "Sun's out, guns out", "GTL", "We rage hard"];
+  var dumbhashtags = ["#NattyIce", "#kegstand", "#bromance", "#tanktops", "#chubbies", "#chug", "#swole", "#∆KE"];
+  send('FratBro', dumbtweets[Math.floor(Math.random()*dumbtweets.length)]+" bro "+dumbhashtags[Math.floor(Math.random()*dumbhashtags.length)]);
+}
+
+function randBot(){
+  var adj = ["lousy", "cheap", "awful", "miserable", "touchy", "abysmal", "driveling"];
+  var noun = ["monstrosity", "mystic", "scum", "non-entity", "old fool", "social-metaphysical mediocrity", "web developer", "Javascript programmer"];
+  var ARtags = ['#capitalism', '#individualism', "#bro", "#Amurica", "#vodkatalking", "#trainlove", "#jk", "#lulz", "#objectivizm2K13"];
+  send('Ayn Rand', "You "+adj[Math.floor(Math.random()*adj.length)]+" "+noun[Math.floor(Math.random()*noun.length)]+"! "+ARtags[Math.floor(Math.random()*ARtags.length)]);
+}
+
+function tedTalks(){
+  var buzzword = ["Nano", "Quantum", "Online learning", "Sustainable", "Bio", "Neuro", "Interconnectivity", "Consciousness"];
+  var overstatement = ["new black", "wave of the future", "future of technology", "key to space travel", "dream of America's founders", "road to ruin"];
+  send('TEDTalks', randomElement(buzzword)+" is the "+randomElement(overstatement));
+}
+
+function completelyRandom(){
+  send(randomElement(users), randomMessage());
+}
+
+var randomElement = function(array){
+  var randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+};
+
+users = ['questionbot', 'thegovernor', 'michaeljacksontheVth', 'capitalcaterpillar', 'twelvish'];
+
+var opening = ['just', '', '', '', '', 'ask me how i', 'completely', 'nearly', 'productively', 'efficiently', 'last night i', 'the president', 'that wizard', 'a ninja', 'a seedy old man', 'recently'];
+var verbs = ['drank', 'drunk', 'deployed', 'got', 'developed', 'built', 'invented', 'experienced', 'fought off', 'hardened', 'enjoyed', 'developed', 'consumed', 'debunked', 'drugged', 'doped', 'made', 'wrote', 'saw', 'released', 'verbed', 'phased', 'froze'];
+var objects = ['my', 'your', 'the', 'a', 'my', 'an entire', 'this', 'that', 'the', 'the big', 'a new form of'];
+var nouns = ['cat', 'koolaid', 'system', 'city', 'worm', 'cloud', 'potato', 'money', 'way of life', 'belief system', 'security system', 'bad decision', 'future', 'life', 'pony', 'mind', 'button', 'garden', 'robot', 'board', 'heart'];
+var tags = ['#meat', '#dread', '#sf', 'but only i know how', '#notquail', 'for real', '#sxsw', '#ballin $$$', '#omg', '#noyolo', '#magic', '', '', '', '?', '!!', '', '', '', '', '', '#kale', '#highfructose', '#tinfoil', '#justice', '#noteventwice', '#zomg'];
+
+var randomMessage = function(){
+  return [randomElement(opening), randomElement(verbs), randomElement(objects), randomElement(nouns), randomElement(tags), randomElement(tags)].join(' ');
+};
+
+
+
+
+
+
+
+
+// deletes first item in chat list, appends new message to end of list.
+  //       function updateList (obj) {
+  //         $('.messages li:first').remove();
+  //         $('.messages').append('<li>'+ obj[0].text + '</li>');
+  //       }
+
+  //       // checks message timestamps for new messages.
+  //       // calls updateList if new message is posted.
+  //       function checkForNewMssgs () {
+  //         $.ajax(requestObj).done(function (data) {
+  //           var resultsObj = data.results;
+  //           newTimestamp = resultsObj[0].createdAt;
+  //           if (newTimestamp != lastTimestamp) {
+  //             updateList(resultsObj);
+  //             lastTimestamp = newTimestamp;
+  //           }
+  //         });
+  //       }
+
+
+
 
    // ajax request parameters.
   //  var requestObj = {
