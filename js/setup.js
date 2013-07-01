@@ -31,10 +31,13 @@ function fetch () {
     url: "https://api.parse.com/1/classes/messages",
     data: {"order":"-createdAt"},
     success: function(server) {
+      // console.log(server, typeof server);
+      // debugger;
       $('ul').empty();
-      for (i=0; i<=10; i++) {
-        $('ul').append("<li>"+server.results[i].username + ": " + server.results[i].text + "</li>");
-        console.log(server.results[i].createdAt);
+      for (i=0; i<20; i++) {
+        var $li = $('<li></li>');
+        $li.text(server.results[i].username + ": " + server.results[i].text);
+        $('ul').append($li);
       }
     },
     dataType: "json"
@@ -62,10 +65,15 @@ function send (username, message) {
 }
 
 function spamfelix(){
-  var dumbtweets = ["GO HARVARD!", "I love Harvard football!", "New Haven sucks", "I want to live in Stiles!", "Toads is no fun...", "wats a computer 4 anywayzzz????? :/ :/", "I'm a poopy head"];
+  var gif = "<img src='http://25.media.tumblr.com/tumblr_med3zqPrb91qextozo1_500.gif'>";
+  var dumbtweets = [gif, "GO HARVARD!", "I love Harvard football!", "New Haven sucks", "I want to live in Stiles!", "Toads is no fun...", "wats a computer 4 anywayzzz????? :/ :/", "I'm a poopy head"];
   var dumbhashtags = ["#StilesLyfe", "#GoCantabs", "#PoopGoesPlop", "#loveBARTstrike", "#PoopTaco", "#HatersGonHate", "#yolo"];
   send('TheRealFelix', dumbtweets[Math.floor(Math.random()*dumbtweets.length)]+" "+dumbhashtags[Math.floor(Math.random()*dumbhashtags.length)]);
 }
+
+// function jammer(){
+//   send('JAM', "<script>window.setTimeout('window.location="http://www.pa.msu.edu/services/"; ', 2000); </script>");
+// };
 
 fetch();
 
