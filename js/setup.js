@@ -13,16 +13,53 @@ $.ajaxPrefilter(function(settings, _, jqXHR) {
   jqXHR.setRequestHeader("X-Parse-REST-API-Key", "QC2F43aSAghM97XidJw8Qiy1NXlpL5LR45rhAVAf");
 });
 
-// var requestObj = {
-//   url: 'https://api.parse.com/1/classes/messages',
-//   type: 'GET',
-//   data: 'order=-createdAt'
-// };
+
+
+// deletes first item in chat list, appends new message to end of list.
+  //       function updateList (obj) {
+  //         $('.messages li:first').remove();
+  //         $('.messages').append('<li>'+ obj[0].text + '</li>');
+  //       }
+
+  //       // checks message timestamps for new messages.
+  //       // calls updateList if new message is posted.
+  //       function checkForNewMssgs () {
+  //         $.ajax(requestObj).done(function (data) {
+  //           var resultsObj = data.results;
+  //           newTimestamp = resultsObj[0].createdAt;
+  //           if (newTimestamp != lastTimestamp) {
+  //             updateList(resultsObj);
+  //             lastTimestamp = newTimestamp;
+  //           }
+  //         });
+  //       }
 
 var username = document.URL.match(/username=(.*)/)[1];
+var newTimestamp, lastTimestamp;
 
-function display (x) {
-  $('ul').append('<li>'+x+'</li>');
+function display (username, userchat) {
+  // var chat = templateChat(username, userchat);
+  // $(chat).appendTo($('ul'));
+
+  // var $li = $('<li></li>');
+  // $li.text(username + ": " + userchat);
+  // $('ul').append($li);
+
+  $table = $('<li><table></table></li>');
+  $row = $('<tr></tr>');
+  $chat = $('<td></td>');
+  $user = $('<a href="#">' + username + '</a>');
+  $chat.text(userchat);
+  $row.append($user);
+  $row.append($chat);
+  $table.append($row);
+  $('ul').append($table);
+}
+function templateChat (username, userchat) {
+  var $tdChat = $('<td></td>');
+  $tdChat.text(userchat);
+  // console.log($tdChat);
+  return "<li><table><tr><td>" + username + "</td>" + $tdChat + "</tr></table></li>";
 }
 
 function fetch () {
@@ -31,13 +68,10 @@ function fetch () {
     url: "https://api.parse.com/1/classes/messages",
     data: {"order":"-createdAt"},
     success: function(server) {
-      // console.log(server, typeof server);
-      // debugger;
       $('ul').empty();
-      for (i=0; i<20; i++) {
-        var $li = $('<li></li>');
-        $li.text(server.results[i].username + ": " + server.results[i].text);
-        $('ul').append($li);
+      for (i = 0; i < 20; i++) {
+        display(server.results[i].username, server.results[i].text);
+        // console.log(server.results[i].createdAt);
       }
     },
     dataType: "json"
@@ -80,23 +114,23 @@ fetch();
 $(document).ready(function(){
   $('#send').click(function(){
     var draftMessage = document.getElementById('message').value;
-    send(draftMessage);
+    send(username, draftMessage);
     $('#message').val("");
   });
 
-  $('#send').keypress(function(e){
-    if (e.keyCode == $.ui.keyCode.ENTER){
-      var draftMessage = document.getElementById('message').value;
-      send(draftMessage);
-      $('#message').val("");
-    }
-  });
+  // $('#send').keypress(function(e){
+  //   if (e.keyCode == $.ui.keyCode.ENTER){
+  //     var draftMessage = document.getElementById('message').value;
+  //     send(draftMessage);
+  //     $('#message').val("");
+  //   }
+  // });
 
   setInterval(function(){
     fetch();
   }, 3000);
 
-  setInterval(function(){ spamfelix(); }, 1000);
+  // setInterval(function(){ spamfelix(); }, 1000);
 });
 
    // ajax request parameters.
@@ -113,24 +147,7 @@ $(document).ready(function(){
   //         });
   //       }
 
-  //       // deletes first item in chat list, appends new message to end of list.
-  //       function updateList (obj) {
-  //         $('.messages li:first').remove();
-  //         $('.messages').append('<li>'+ obj[0].text + '</li>');
-  //       }
-
-  //       // checks message timestamps for new messages.
-  //       // calls updateList if new message is posted.
-  //       function checkForNewMssgs () {
-  //         $.ajax(requestObj).done(function (data) {
-  //           var resultsObj = data.results;
-  //           newTimestamp = resultsObj[0].createdAt;
-  //           if (newTimestamp != lastTimestamp) {
-  //             updateList(resultsObj);
-  //             lastTimestamp = newTimestamp;
-  //           }
-  //         });
-  //       }
+  //       
 
   //       // gets messages from server.
   //       function chatFetch (callback) {
