@@ -21,6 +21,7 @@ body {
 
 #main ul {
     padding-left: 20px;
+    list-style-type: none;
 }
 
 #main .error {
@@ -40,4 +41,18 @@ body {
 }
 table {
     margin: 5px;
+}
+#send {
+    height: 25px;
+    width: 60px;
+    background-color: #31C4F5;
+    color: white;
+    margin-left: 10px;
+}
+#username {
+    color: gray;
+    font-style: italic;
+}
+.friend {
+    font-weight: bolder;
 }

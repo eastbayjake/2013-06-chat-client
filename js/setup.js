@@ -15,6 +15,7 @@ $.ajaxPrefilter(function(settings, _, jqXHR) {
 
 
 var username = document.URL.match(/username=(.*)/)[1];
+var friends = [];
 var newTimestamp, lastTimestamp;
 
 function display (username, userchat) {
@@ -46,7 +47,7 @@ function fetch () {
         // console.log("name length: ", user.length);
         // console.log("text length: ", text.length);
         // if (text.length >= 140) { console.log(text); }
-        if (user.length < 20 && text.length < 140) {
+        if ((user && user.length < 20) && (text && text.length < 140)) {
           display(user, text);
         }
         // console.log(server.results[i].createdAt);
@@ -82,9 +83,34 @@ fetch();
 $(document).ready(function(){
   $('#send').click(function(){
     var draftMessage = document.getElementById('message').value;
+    username = document.getElementById('username').value;
     send(username, draftMessage);
     $('#message').val("");
   });
+
+  $('#username').click(function(){
+    $('#username').val("");
+  });
+
+  $('#send').keydown(function(e){
+    if (e.keyCode === 13) {
+      var draftMessage = document.getElementById('message').value;
+      username = document.getElementById('username').value;
+      send(username, draftMessage);
+    }
+  });
+
+  $('a').click(function(){
+    console.log('...friending...');
+    friends.push(username);
+    $(username).addClass('friend');
+  });
+
+  // function getFormValues(){
+  //   // var draftMessage = document.getElementById('message').value;
+  //   // username = document.getElementById('username').value;
+  //   // send(username, draftMessage);
+  // }
 
   setInterval(function(){
     fetch();
@@ -102,15 +128,19 @@ $(document).ready(function(){
     completelyRandom();
   }, Math.random()*200000);
 
-    setInterval(function(){
-    tedTalks();
+  setInterval(function(){
+    RandBro();
   }, Math.random()*20000);
+
+  setInterval(function(){
+    astley();
+  }, Math.random()*10000);
 
 });
 
 function broBot(){
   var dumbtweets = ["Hey", "Totally rad", "Siiiiick", "Dude...", "Sun's out, guns out", "GTL", "We rage hard"];
-  var dumbhashtags = ["#NattyIce", "#kegstand", "#bromance", "#tanktops", "#chubbies", "#chug", "#swole", "#∆KE"];
+  var dumbhashtags = ["#NattyIce", "#kegstand", "#bromance", "#tanktops", "#chubbies", "#chug", "#swole", "#∆KE", '#murdershewrote'];
   send('FratBro', dumbtweets[Math.floor(Math.random()*dumbtweets.length)]+" bro "+dumbhashtags[Math.floor(Math.random()*dumbhashtags.length)]);
 }
 
@@ -119,6 +149,17 @@ function randBot(){
   var noun = ["monstrosity", "mystic", "scum", "non-entity", "old fool", "social-metaphysical mediocrity", "web developer", "Javascript programmer"];
   var ARtags = ['#capitalism', '#individualism', "#bro", "#Amurica", "#vodkatalking", "#trainlove", "#jk", "#lulz", "#objectivizm2K13"];
   send('Ayn Rand', "You "+adj[Math.floor(Math.random()*adj.length)]+" "+noun[Math.floor(Math.random()*noun.length)]+"! "+ARtags[Math.floor(Math.random()*ARtags.length)]);
+}
+
+function RandBro(){
+  var aynquote = ["USA! USA! USA!", "Capitalism is a moral imperative", "Selfishness is the highest ideal", "Charity is a weakness", "A is A", "I shall never live for another man's sake"];
+  var hashtags = ["", "#BaldEagle", "#WakeAndBake", "#tacos", '#bacon', "#theytookourjobs"];
+  send('RandBro', randomElement(aynquote)+", bro "+randomElement(hashtags));
+}
+
+function astley(){
+  var endings = ["give you up", "let you down", "run around and desert you", "make you cry", "say goodbye", "tell a lie and hurt you"];
+  send('Rick Astley', "Never gonna " + randomElement(endings));
 }
 
 function tedTalks(){
