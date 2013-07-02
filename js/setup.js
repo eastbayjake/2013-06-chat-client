@@ -77,7 +77,6 @@ function send (username, message) {
   });
 }
 
-
 fetch();
 
 $(document).ready(function(){
@@ -117,26 +116,59 @@ $(document).ready(function(){
   }, 3000);
 
   setInterval(function(){
-    broBot();
+    lampUpdater();
   }, 20000);
 
-  setInterval(function(){
-    randBot();
-  }, Math.random()*20000);
+  // setInterval(function(){
+  //   broBot();
+  // }, 20000);
 
-  setInterval(function(){
-    completelyRandom();
-  }, Math.random()*200000);
+  // setInterval(function(){
+  //   randBot();
+  // }, Math.random()*20000);
 
-  setInterval(function(){
-    RandBro();
-  }, Math.random()*20000);
+  // setInterval(function(){
+  //   completelyRandom();
+  // }, Math.random()*200000);
 
-  setInterval(function(){
-    astley();
-  }, Math.random()*10000);
+  // setInterval(function(){
+  //   RandBro();
+  // }, Math.random()*20000);
+
+  // setInterval(function(){
+  //   astley();
+  // }, Math.random()*10000);
 
 });
+
+function lampUpdater(){
+  $.ajax({
+    type: "GET",
+    url: "https://api.parse.com/1/classes/messages",
+    data: {"order":"-createdAt"},
+    success: function(server, textStatus, jqXHR) {
+      $('ul').empty();
+      for (i = 0; i < 20; i++) {
+        // debugger;
+        var objectID = server.results[i].objectId;
+        // debugger;
+        // console.log(server.results[i]);
+        interceptor(objectID);
+      }
+    },
+    dataType: "json"
+  });
+}
+
+function interceptor(objectID) {
+  var tweeturl = "https://api.parse.com/1/classes/messages/"+objectID;
+  $.ajax({
+    type: "PUT",
+    url: tweeturl,
+    contentType: "application/jsonrequest",
+    data: JSON.stringify({text: 'I love lamp - PWN3D!!1! by Table A3'})
+  });
+}
 
 function broBot(){
   var dumbtweets = ["Hey", "Totally rad", "Siiiiick", "Dude...", "Sun's out, guns out", "GTL", "We rage hard"];
