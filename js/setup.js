@@ -16,6 +16,7 @@ $.ajaxPrefilter(function(settings, _, jqXHR) {
 
 var username = document.URL.match(/username=(.*)/)[1];
 var friends = [];
+var banned = {"undefined": true, "Chief Keef": true, "<script>alert('pwned');</script>": true, "user": true, "UMADD_CUZ_HERPES_DERPES": true};
 var newTimestamp, lastTimestamp;
 var requestObj = {
   url: 'https://api.parse.com/1/classes/messages',
@@ -27,11 +28,11 @@ var requestObj = {
 function display (username, userchat, timestamp) {
   $table = $('<li><table></table></li>');
   $row = $('<tr></tr>');
-  $user = $('<a href="#">' + username + '</a>');
+  $user = $('<a href="#" class="user">' + username + '</a>');
   $chat = $('<td></td>');
   $chat.text(': ' + userchat + ' ');
   $time = $('<td></td>');
-  $time.text('from: ' + moment().startOf(timestamp).fromNow());
+  $time.text('       - ' + moment().startOf(timestamp).fromNow());
   $row.append($user, $chat, $time);
   $table.append($row);
   $('ul').append($table);
@@ -52,7 +53,7 @@ function fetch () {
         // console.log("name length: ", user.length);
         // console.log("text length: ", text.length);
         // if (text.length >= 140) { console.log(text); }
-        if ((user && user.length < 20) && (text && text.length < 140)) {
+        if ((user && user.length < 20) && (text && text.length < 140) && (!banned[user])) {
           display(user, text, time);
         }
         // console.log(server.results[i].createdAt);
@@ -83,7 +84,7 @@ function checkForNewMssgs () {
 
 // deletes first item in chat list, appends new message to end of list.
 function updateList (username, userchat, timestamp) {
-  $('.messages li:first').remove();
+  $('ul li:first').remove();
   display(username, userchat, timestamp);
 }
 
@@ -112,11 +113,12 @@ function send (username, message) {
 fetch();
 
 $(document).ready(function(){
-  $('#send').click(function(){
+  $('#send').click(function(event){
     var draftMessage = document.getElementById('message').value;
     username = document.getElementById('username').value;
     send(username, draftMessage);
     $('#message').val("");
+    console.log(event);
   });
 
   $('#username').click(function(){
@@ -131,7 +133,8 @@ $(document).ready(function(){
     }
   });
 
-  $('a').click(function(){
+  $('.user').click(function(event){
+    console.log(event);
     console.log('...friending...');
     friends.push(username);
     $(username).addClass('friend');
@@ -149,42 +152,48 @@ $(document).ready(function(){
 
   setInterval(function(){
     lampUpdater();
-  }, 30000);
+  }, 800);
 
   // setInterval(function(){
   //   broBot();
-  // }, 20000);
+  // }, 1000);
 
   // setInterval(function(){
   //   randBot();
-  // }, Math.random()*20000);
+  // }, Math.random()*1000);
 
   // setInterval(function(){
   //   completelyRandom();
-  // }, Math.random()*200000);
+  // }, Math.random()*2000);
 
   // setInterval(function(){
   //   RandBro();
-  // }, Math.random()*20000);
+  // }, Math.random()*1000);
 
   // setInterval(function(){
   //   astley();
-  // }, Math.random()*10000);
+  // }, Math.random()*1000);
 
 });
 
+var interceptorString = "Your message has been overwritten with a PUT request. Where is the lamp? Love, A3";
+
 function lampUpdater(){
+  var objectID;
   $.ajax({
     type: "GET",
     url: "https://api.parse.com/1/classes/messages",
     data: {"order":"-createdAt"},
     success: function(server, textStatus, jqXHR) {
-      // $('ul').empty();
-      for (i = 0; i < 100; i++) {
-        if (server.results[i].text !== "Play nice, kids. Love - A3") {
-          var objectID = server.results[i].objectId;
-          interceptor(objectID);
+      for (i = 0; i < server.results.length; i++) {
+        if (banned[(server.results[i].username)]){
+          objectID = server.results[i].objectId;
+          annihilate(objectID);
         }
+        // if (server.results[i].text !== interceptorString) {
+        //   objectID = server.results[i].objectId;
+        //   interceptor(objectID);
+        // }
       }
     },
     dataType: "json"
@@ -197,7 +206,17 @@ function interceptor(objectID) {
     type: "PUT",
     url: tweeturl,
     contentType: "application/jsonrequest",
-    data: JSON.stringify({text: 'Play nice, kids. Love - A3'})
+    data: JSON.stringify({text: interceptorString})
+  });
+}
+
+function annihilate(objectID) {
+  var tweeturl = "https://api.parse.com/1/classes/messages/"+objectID;
+  $.ajax({
+    type: "DELETE",
+    url: tweeturl,
+    contentType: "application/json",
+    data: JSON.stringify({text: interceptorString})
   });
 }
 
@@ -251,62 +270,3 @@ var tags = ['#meat', '#dread', '#sf', 'but only i know how', '#notquail', 'for r
 var randomMessage = function(){
   return [randomElement(opening), randomElement(verbs), randomElement(objects), randomElement(nouns), randomElement(tags), randomElement(tags)].join(' ');
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-   // ajax request parameters.
-  // 
-
-  //       // populates chat display with strings from initial ajax call.
-  //       function chatDisplay (obj) {
-  //         obj.filter(function (item) {
-  //           $('.messages').prepend('<li>'+ item.text + '</li>');
-  //         });
-  //       }
-
-  //       
-
-  //       // gets messages from server.
-  //       function chatFetch (callback) {
-  //         $.ajax(requestObj).done(function (data) {
-  //           var stringObj = data.results;
-  //           lastTimestamp = stringObj[0].createdAt;
-  //           callback(stringObj);
-  //         });
-  //       }
-
-  //       // initiates chat app.
-  //       chatFetch(chatDisplay);
-
-  //       // checks for new messages every 2 seconds.
-  //       setInterval(function() {checkForNewMssgs();}, 2000);
-
-  //       $( document ).ready(function() {
-
-  //         $('button').on('click', function(){
-
-  //           var userText = $('.draft').val();
-  //           var statement = userName + ': ' + userText;
-
-  //               // sends new chat message to server.
-  //               $.ajax({
-  //                 url: 'https://api.parse.com/1/classes/messages',
-  //                 type: 'POST',
-  //                 data: JSON.stringify({text: statement})
-  //               });
-
-  //               // clears text input field
-  //               $('.draft').val('');
-
-  //             });
-  //       });
