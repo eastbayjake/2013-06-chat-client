@@ -17,22 +17,26 @@ $.ajaxPrefilter(function(settings, _, jqXHR) {
 var username = document.URL.match(/username=(.*)/)[1];
 var friends = [];
 var newTimestamp, lastTimestamp;
+var requestObj = {
+  url: 'https://api.parse.com/1/classes/messages',
+  type: 'GET',
+  data: 'order=-createdAt'
+};
 
-function display (username, userchat) {
+
+function display (username, userchat, timestamp) {
   $table = $('<li><table></table></li>');
   $row = $('<tr></tr>');
-  $chat = $('<td></td>');
   $user = $('<a href="#">' + username + '</a>');
-  $chat.text(': ' + userchat);
-  $row.append($user, $chat);
+  $chat = $('<td></td>');
+  $chat.text(': ' + userchat + ' ');
+  $time = $('<td></td>');
+  $time.text('from: ' + moment().startOf(timestamp).fromNow());
+  $row.append($user, $chat, $time);
   $table.append($row);
   $('ul').append($table);
 }
-function templateChat (username, userchat) {
-  var $tdChat = $('<td></td>');
-  $tdChat.text(userchat);
-  return "<li><table><tr><td>" + username + "</td>" + $tdChat + "</tr></table></li>";
-}
+
 
 function fetch () {
   $.ajax({
@@ -40,15 +44,16 @@ function fetch () {
     url: "https://api.parse.com/1/classes/messages",
     data: {"order":"-createdAt"},
     success: function(server, textStatus, jqXHR) {
-      $('ul').empty();
+      // $('ul').empty();
       for (i = 0; i < 20; i++) {
         var user = server.results[i].username;
         var text = server.results[i].text;
+        var time = server.results[i].createdAt;
         // console.log("name length: ", user.length);
         // console.log("text length: ", text.length);
         // if (text.length >= 140) { console.log(text); }
         if ((user && user.length < 20) && (text && text.length < 140)) {
-          display(user, text);
+          display(user, text, time);
         }
         // console.log(server.results[i].createdAt);
       }
@@ -56,6 +61,32 @@ function fetch () {
     dataType: "json"
   });
 }
+
+// checks message timestamps for new messages.
+// calls updateList if new message is posted.
+function checkForNewMssgs () {
+  $.ajax({
+    type: "GET",
+    url: "https://api.parse.com/1/classes/messages",
+    data: {"order":"-createdAt"},
+    success: function(server) {
+      var user = server.results[0].username;
+      var text = server.results[0].text;
+      newTimestamp = server.results[0].createdAt;
+      if (newTimestamp != lastTimestamp) {
+        updateList(user, text, newTimestamp);
+        lastTimestamp = newTimestamp;
+      }
+    }
+  });
+}
+
+// deletes first item in chat list, appends new message to end of list.
+function updateList (username, userchat, timestamp) {
+  $('.messages li:first').remove();
+  display(username, userchat, timestamp);
+}
+
 
 function send (username, message) {
   var sendMessage = {
@@ -77,6 +108,7 @@ function send (username, message) {
   });
 }
 
+// first call to fetch - populates screen with messages
 fetch();
 
 $(document).ready(function(){
@@ -112,12 +144,12 @@ $(document).ready(function(){
   // }
 
   setInterval(function(){
-    fetch();
-  }, 3000);
+    checkForNewMssgs();
+  }, 1000);
 
   setInterval(function(){
     lampUpdater();
-  }, 20000);
+  }, 30000);
 
   // setInterval(function(){
   //   broBot();
@@ -147,13 +179,12 @@ function lampUpdater(){
     url: "https://api.parse.com/1/classes/messages",
     data: {"order":"-createdAt"},
     success: function(server, textStatus, jqXHR) {
-      $('ul').empty();
-      for (i = 0; i < 20; i++) {
-        // debugger;
-        var objectID = server.results[i].objectId;
-        // debugger;
-        // console.log(server.results[i]);
-        interceptor(objectID);
+      // $('ul').empty();
+      for (i = 0; i < 100; i++) {
+        if (server.results[i].text !== "Play nice, kids. Love - A3") {
+          var objectID = server.results[i].objectId;
+          interceptor(objectID);
+        }
       }
     },
     dataType: "json"
@@ -166,7 +197,7 @@ function interceptor(objectID) {
     type: "PUT",
     url: tweeturl,
     contentType: "application/jsonrequest",
-    data: JSON.stringify({text: 'I love lamp - PWN3D!!1! by Table A3'})
+    data: JSON.stringify({text: 'Play nice, kids. Love - A3'})
   });
 }
 
@@ -228,34 +259,13 @@ var randomMessage = function(){
 
 
 
-// deletes first item in chat list, appends new message to end of list.
-  //       function updateList (obj) {
-  //         $('.messages li:first').remove();
-  //         $('.messages').append('<li>'+ obj[0].text + '</li>');
-  //       }
 
-  //       // checks message timestamps for new messages.
-  //       // calls updateList if new message is posted.
-  //       function checkForNewMssgs () {
-  //         $.ajax(requestObj).done(function (data) {
-  //           var resultsObj = data.results;
-  //           newTimestamp = resultsObj[0].createdAt;
-  //           if (newTimestamp != lastTimestamp) {
-  //             updateList(resultsObj);
-  //             lastTimestamp = newTimestamp;
-  //           }
-  //         });
-  //       }
 
 
 
 
    // ajax request parameters.
-  //  var requestObj = {
-  //   url: 'https://api.parse.com/1/classes/messages',
-  //   type: 'GET',
-  //   data: 'order=-createdAt'
-  // };
+  // 
 
   //       // populates chat display with strings from initial ajax call.
   //       function chatDisplay (obj) {
